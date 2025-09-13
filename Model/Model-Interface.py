@@ -1,5 +1,5 @@
-# Imports
 from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
 import pandas as pd
 import datetime
@@ -9,18 +9,26 @@ model = joblib.load("f1_model.pkl")
 
 app = FastAPI()
 
+# Define request body schema
+class PredictionInput(BaseModel):
+    continent: str
+    team: str
+    laps: int
+    year: int
+
 @app.get("/")
 def home():
     return {"message": "F1 Prediction API is running!"}
 
-# Prediction function
+
 @app.post("/predict")
-def predict():
+def predict(input_data: PredictionInput):
+    # Convert input to DataFrame
     data = pd.DataFrame([{
-        "Continent": "Europe",
-        "Team": "Ferrari",
-        "Laps": 70,
-        "Year": 2026
+        "Continent": input_data.continent,
+        "Team": input_data.team,
+        "Laps": input_data.laps,
+        "Year": input_data.year
     }])
 
     # Predict
