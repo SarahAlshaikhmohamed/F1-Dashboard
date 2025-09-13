@@ -21,11 +21,10 @@ st.title("🏎️ Formula 1 Winners Analysis (1950-2025)")
 # Load dataset
 @st.cache_data
 def load_data():
-    # Load the dataset - replace with your actual file path
-    # You can upload the file directly or provide a URL
+    
     try:
         # Try to load from URL first
-        url = "https://github.com/your-username/f1-data/raw/main/f1_winners.csv"  # Replace with your actual URL
+        url = "https://github.com/SarahAlshaikhmohamed/F1-Dashboard"
         df = pd.read_csv(url)
     except:
         # Fallback to local file
@@ -210,4 +209,5 @@ with col3:
 
 # Footer
 st.markdown("---")
+
 st.markdown("**Dataset Source:** [Kaggle - Formula 1 Winners 1950-2025](https://www.kaggle.com/datasets/julianbloise/winners-formula-1-1950-to-2025)")
