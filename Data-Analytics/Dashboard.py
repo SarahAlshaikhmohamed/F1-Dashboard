@@ -19,7 +19,7 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     try:
-        df = pd.read_csv("/Users/abdul/Desktop/project g6/F1-Dashboard/Dataset/winners_f1_cleaned.csv")
+        df = pd.read_csv("../Dataset/winners_f1_cleaned.csv")
     except:
         st.error("Dataset not found. Please place 'Dataset\winners_f1_cleaned.csv' in the same folder.")
         return pd.DataFrame()
@@ -113,7 +113,7 @@ if st.checkbox("Show detailed statistics"):
         st.write("Could not produce descriptive statistics:", e)
 
 st.header("Visualizations")
-tab1, tab2, tab3 = st.tabs(["Winners", "Teams", "Race Trends"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Winners", "Teams", "Race Trends", "Continents", "Laps"])
 
 with tab1:
     st.subheader("Most Successful Winners")
@@ -149,6 +149,47 @@ with tab3:
         title="Number of Races per Year"
     )
     st.plotly_chart(fig, use_container_width=True)
+
+with tab4:
+    st.subheader("Race Distribution by Continent")
+    races_by_continent = filtered_df["Continent"].value_counts()
+
+    fig = px.pie(
+        values=races_by_continent.values,
+        names=races_by_continent.index,
+        title="Race Distribution by Continent",
+        hole=0.5
+    )
+    fig.update_traces(textinfo="percent+label")
+    fig.update_layout(
+        legend=dict(
+            title="Continent",
+            orientation="v",
+            y=0.5,
+            x=1.05,
+            xanchor="left",
+            yanchor="middle"
+        )
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+with tab5:
+    st.subheader("Lap Statistics")
+    fig = px.box(
+        filtered_df,
+        y="Laps",
+        title="Laps Distribution",
+        points="all",  
+        color_discrete_sequence=["skyblue"]
+    )
+    fig.update_layout(
+        yaxis_title="Laps",
+        xaxis_title="", 
+        showlegend=False
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
 
 # FASTAPI PREDICTION SECTION
 st.header("Race Time Prediction")
@@ -193,6 +234,7 @@ if st.checkbox("Show raw data"):
     st.write(df)
 
 st.header("Interesting Facts")
+# First row of facts
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -206,15 +248,47 @@ with col1:
 with col2:
     try:
         highest_row = filtered_df.loc[filtered_df['Time'].idxmax()]
-        st.info(f"⏱️ Longest race time: {highest_row['Time']} by {highest_row['Winner']} in {int(highest_row['Year'])}")
+        race_time = pd.to_datetime(highest_row['Time']).time()
+        st.info(f"⏱️ Longest race time: {race_time} by {highest_row['Winner']} in {int(highest_row['Year'])}")
     except Exception:
         st.info("⏱️ No race time data for selected filters")
+
+
 with col3:
     try:
         most_laps_row = filtered_df.loc[filtered_df['Laps'].idxmax()]
         st.info(f"🔄 Most laps in a race: {int(most_laps_row['Laps'])} by {most_laps_row['Winner']} in {int(most_laps_row['Year'])}")
     except Exception:
         st.info("🔄 No laps data for selected filters")
+
+
+# Second row of facts
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    try:
+        top_team = filtered_df['Team'].value_counts().idxmax()
+        count = int(filtered_df['Team'].value_counts().max())
+        st.info(f"🏎️ {top_team} is the most successful team with {count} wins")
+    except Exception:
+        st.info("🏎️ No team data for selected filters")
+
+with col5:
+    try:
+        races_per_year = filtered_df.groupby("Year")["GrandPrix"].count()
+        peak_year = races_per_year.idxmax()
+        peak_count = races_per_year.max()
+        st.info(f"📈 The busiest F1 season was {peak_year} with {peak_count} races")
+    except Exception:
+        st.info("📈 No race trend data available")
+
+with col6:
+    try:
+        continent = filtered_df['Continent'].value_counts().idxmax()
+        share = filtered_df['Continent'].value_counts(normalize=True).max() * 100
+        st.info(f"🌍 {continent} hosts the majority of F1 races ({share:.1f}%)")
+    except Exception:
+        st.info("🌍 No continent data available")
 
 st.markdown("---")
 

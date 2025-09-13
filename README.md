@@ -30,11 +30,11 @@ Following week one project Instructions:
    ```
 3. Run FastAPI Service
    ``` bash
-   uvicorn Model-Interface:app --reload
+   python -m uvicorn Model_Interface:app --reload
    ```
 4. Run Streamlit Dashboard
    ```bash
-   streamlit run dashboard.py
+   python -m streamlit run Dashboard.py
    ```
 
 ---
